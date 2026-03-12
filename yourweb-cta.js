@@ -2,6 +2,8 @@
  * YOURWEB CTA – Custom Element (un solo .js para Wix Custom Element / GitHub)
  * Uso en Wix: Añadir Custom Element → Server URL = URL de este .js → Tag name: yourweb-cta
  * Atributos: label (texto del botón), href (enlace al hacer clic)
+ *
+ * Implementado como clase ES6, igual que el ejemplo de Unicorn.
  */
 (function () {
   var STYLES = [
@@ -16,70 +18,80 @@
     "@keyframes spin{to{transform:rotate(360deg)}}"
   ].join("");
 
-  var YourWebCta = function () {
-    var self = HTMLElement.call(this) || this;
-    self.attachShadow({ mode: "open" });
-    var style = document.createElement("style");
-    style.textContent = STYLES;
-    self.shadowRoot.appendChild(style);
-    var btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "btn";
-    btn.innerHTML = '<div class="inner" aria-hidden="true"></div><span></span>';
-    self.shadowRoot.appendChild(btn);
-    return self;
-  };
-
-  YourWebCta.prototype = Object.create(HTMLElement.prototype);
-  YourWebCta.prototype.constructor = YourWebCta;
-
-  YourWebCta.observedAttributes = ["label", "href"];
-
-  YourWebCta.prototype.connectedCallback = function () {
-    this._updateContent();
-    this._bindEvents();
-  };
-
-  YourWebCta.prototype.attributeChangedCallback = function (name) {
-    if (name === "label" || name === "href") this._updateContent();
-  };
-
-  YourWebCta.prototype._updateContent = function () {
-    var root = this.shadowRoot;
-    if (!root) return;
-    var label = this.getAttribute("label") || "YOURWEB";
-    var href = this.getAttribute("href") || "#";
-    var btn = root.querySelector(".btn");
-    var span = root.querySelector(".btn span");
-    if (span) span.textContent = label;
-    if (btn) {
-      btn.onclick = function () {
-        if (href && href !== "#") {
-          try {
-            if (window.top && window.top.location) window.top.location.href = href;
-            else window.location.href = href;
-          } catch (e) {
-            window.location.href = href;
-          }
-        }
-      };
+  class YourWebCta extends HTMLElement {
+    static get observedAttributes() {
+      return ["label", "href"];
     }
-  };
 
-  YourWebCta.prototype._bindEvents = function () {
-    var root = this.shadowRoot;
-    if (!root) return;
-    var btn = root.querySelector(".btn");
-    var inner = root.querySelector(".inner");
-    if (!btn || !inner) return;
-    btn.addEventListener("mousemove", function (e) {
-      var rect = btn.getBoundingClientRect();
-      var x = ((e.clientX - rect.left) / rect.width) * 100;
-      var y = ((e.clientY - rect.top) / rect.height) * 100;
-      inner.style.setProperty("--mouse-x", x + "%");
-      inner.style.setProperty("--mouse-y", y + "%");
-    });
-  };
+    constructor() {
+      super();
+      this._btn = null;
+      this._inner = null;
+      this.attachShadow({ mode: "open" });
+
+      var style = document.createElement("style");
+      style.textContent = STYLES;
+      this.shadowRoot.appendChild(style);
+
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "btn";
+      btn.innerHTML = '<div class="inner" aria-hidden="true"></div><span></span>';
+      this.shadowRoot.appendChild(btn);
+
+      this._btn = btn;
+      this._inner = btn.querySelector(".inner");
+    }
+
+    connectedCallback() {
+      this._updateContent();
+      this._bindEvents();
+    }
+
+    attributeChangedCallback(name, oldValue, newValue) {
+      if (oldValue !== newValue && (name === "label" || name === "href")) {
+        this._updateContent();
+      }
+    }
+
+    _updateContent() {
+      var label = this.getAttribute("label") || "YOURWEB";
+      var href = this.getAttribute("href") || "#";
+
+      if (this._btn) {
+        var span = this._btn.querySelector("span");
+        if (span) span.textContent = label;
+
+        this._btn.onclick = function () {
+          if (href && href !== "#") {
+            try {
+              if (window.top && window.top.location) {
+                window.top.location.href = href;
+              } else {
+                window.location.href = href;
+              }
+            } catch (e) {
+              window.location.href = href;
+            }
+          }
+        };
+      }
+    }
+
+    _bindEvents() {
+      var btn = this._btn;
+      var inner = this._inner;
+      if (!btn || !inner) return;
+
+      btn.addEventListener("mousemove", function (e) {
+        var rect = btn.getBoundingClientRect();
+        var x = ((e.clientX - rect.left) / rect.width) * 100;
+        var y = ((e.clientY - rect.top) / rect.height) * 100;
+        inner.style.setProperty("--mouse-x", x + "%");
+        inner.style.setProperty("--mouse-y", y + "%");
+      });
+    }
+  }
 
   customElements.define("yourweb-cta", YourWebCta);
 })();
