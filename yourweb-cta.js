@@ -56,7 +56,21 @@
 
     _updateContent() {
       var label = this.getAttribute("label") || "YOURWEB";
-      var href = this.getAttribute("href") || "#";
+      var rawHref = this.getAttribute("href") || "#";
+
+      // Normalizar href para que use exactamente la URL indicada
+      // - Si empieza por http/https, se usa tal cual.
+      // - Si parece dominio sin protocolo (contiene un punto y no empieza por /),
+      //   se fuerza a https://DOMINIO
+      // - Si empieza por /, se deja relativo (para rutas internas del mismo sitio).
+      var href = rawHref;
+      if (rawHref && rawHref !== "#" && !/^https?:\/\//i.test(rawHref)) {
+        if (rawHref[0] === "/") {
+          href = rawHref; // ruta interna
+        } else if (rawHref.indexOf(".") !== -1) {
+          href = "https://" + rawHref.replace(/^https?:\/\//i, "");
+        }
+      }
 
       if (this._btn) {
         var span = this._btn.querySelector("span");
