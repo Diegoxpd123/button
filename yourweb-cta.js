@@ -7,8 +7,8 @@
  */
 (function () {
   var STYLES = [
-    // Fondo de prueba para ver el área del Custom Element
-    ":host{display:inline-block;--primary:74 88% 44%;--glow:74 88% 44%;background:#222;padding:20px;border-radius:16px;box-sizing:border-box;}",
+    // Host transparente, sin márgenes ni fondo extra: solo el botón cuenta
+    ":host{display:inline-block;--primary:74 88% 44%;--glow:74 88% 44%;background:transparent;padding:0;margin:0;border-radius:0;box-sizing:border-box;}",
     ".btn{all:unset;position:relative;display:inline-block;padding:14px 52px;background:transparent;color:hsl(var(--primary));text-transform:uppercase;font-size:24px;letter-spacing:.18em;border-radius:100px;cursor:pointer;overflow:hidden;font-family:system-ui,-apple-system,sans-serif}",
     ".btn::after{content:'';position:absolute;inset:0;border-radius:inherit;padding:3px;background:conic-gradient(from 0deg,hsl(var(--glow)),hsl(74 88% 55%),transparent 120deg,transparent 240deg,hsl(var(--glow)));-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask-composite:exclude;animation:spin 2.5s linear infinite;pointer-events:none;z-index:0}",
     ".btn::before{content:'';position:absolute;inset:3px;border-radius:inherit;background:radial-gradient(circle at top left,hsl(74 88% 44%/.12),transparent 50%),radial-gradient(circle at bottom right,hsl(74 88% 55%/.1),transparent 50%),hsl(240 8% 4%);z-index:1;pointer-events:none}",
